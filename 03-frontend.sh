@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#installing MySQL with shell script
+#deploying nginx with shell script in frontend server
 
-IP_DB="private IP of DB server"
+#IP="Private IP of DB server"
 LOG_FOLDER="/var/log/expense"
 SCRIPT_NAME=$(echo "$0" | awk -F "." '{print $1F}') #get the script name without .sh
 TIME_STAMP=$(date +%F-%H-%M-%S) #get the timestamp with date and time
@@ -39,25 +39,22 @@ then
     exit 1  # exit from script
 fi
 
-#install mysql-server DB
-dnf install mysql-server -y &>>$LOG_FILE
-VALIDATE $? "MySQL Server Installation"
+dnf install nginx -y &>>$LOG_FILE
+VALIDATE $? "Nginx installation"
 
-systemctl enable mysqld &>>$LOG_FILE
-VALIDATE $? "MySQL enable"
+curl -o /tmp/frontend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+VALIDATE $? "Frontend code download"
 
-systemctl start mysqld &>>$LOG_FILE
-VALIDATE $? "MySQL start"
+rm -rf /usr/share/nginx/html/*
+cd /usr/share/nginx/html
+unzip /tmp/frontend.zip &>>$LOG_FILE
+VALIDATE $? "Extracting front end code"
 
-mysql -h $IP_DB -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE
+cp /home/ec2-user/frontend.conf /etc/nginx/default.d
+VALIDATE $? "Copying front end config file"
 
-if [ #? -ne 0 ]
-then
-    echo "MySQL root password was not set. Setting it now" &>>$LOG_FILE
-    mysql_secure_installation --set-root-pass ExpenseApp@1
-    VALIDATE $? "setting MySQL root password"
-else    
-    echo -e "MySQL root password was set already $Y SKIPPING $N" | tee -a $LOG_FILE
-fi
+systemctl enable nginx &>>$LOG_FILE
+VALIDATE $? "Enabling nginx"
 
-
+systemctl restart nginx &>>$LOG_FILE
+VALIDATE $? "restarting nginx"
