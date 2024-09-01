@@ -45,7 +45,7 @@ VALIDATE $? "disabling nodejs 18"
 dnf module enable nodejs:20 -y &>>$LOG_FILE
 VALIDATE $? "enabling nodejs 20"
 
-dnf install nodejs -y
+dnf install nodejs -y &>>$LOG_FILE
 VALIDATE $? "Installing nodejs"
 
 id expense &>>$LOG_FILE
@@ -57,13 +57,14 @@ else
     echo -e "expense user already exist $Y SKIPPING $N"
 fi
 
-curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip &>>$LOG_FILE
 VALIDATE $? "Copying backend code"
 
 mkdir -p /app
 VALIDATE $? "/app directory creation"
 
 cd /app
+rm -rf /app/*
 unzip /tmp/backend.zip &>>$LOG_FILE
 VALIDATE $? "extracting backend code"
 
@@ -73,18 +74,18 @@ VALIDATE $? "npm install"
 cp /home/ec2-user/backend.service /etc/systemd/system
 VALIDATE $? "backend service file copy"
 
-npm install mysql &>>$LOG_FILE
+dnf install mysql -y &>>$LOG_FILE
 VALIDATE $? "MySQL client installation"
 
 mysql -h $IP -uroot -pExpenseApp@1 < /app/schema/backend.sql
 VALIDATE $? "MySQL schema load"
 
-systemctl daemon-reload
+systemctl daemon-reload &>>$LOG_FILE
 VALIDATE $? "npm install"
 
-systemctl enable backend
+systemctl enable backend &>>$LOG_FILE
 VALIDATE $? "backend service enable"
 
-systemctl restart backend
+systemctl restart backend &>>$LOG_FILE
 VALIDATE $? "backend service restart "
 

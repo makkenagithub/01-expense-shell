@@ -42,7 +42,7 @@ fi
 dnf install nginx -y &>>$LOG_FILE
 VALIDATE $? "Nginx installation"
 
-curl -o /tmp/frontend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+curl -o /tmp/frontend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip &>>$LOG_FILE
 VALIDATE $? "Frontend code download"
 
 rm -rf /usr/share/nginx/html/*
