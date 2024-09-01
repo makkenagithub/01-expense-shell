@@ -26,11 +26,11 @@ VALIDATE(){
         echo -e "$2 $R FAILED $N, please check further" | tee -a $LOG_FILE
         exit 1
     else 
-        echo -e "$2 $G SUCCESSFULLY $N" tee -a $LOG_FILE
+        echo -e "$2 $G SUCCESSFULLY $N" | tee -a $LOG_FILE
     fi
 }
 
-echo "Script satrted executing at: $(date)" tee -a $LOG_FILE
+echo "Script satrted executing at: $(date)" | tee -a $LOG_FILE
 
 
 if [ $USERID -ne 0 ]   # check root user or not
@@ -51,7 +51,7 @@ VALIDATE $? "MySQL start"
 
 mysql -h $IP_DB -u root -pExpenseApp@1 -e 'show databases;' &>>$LOG_FILE
 
-if [ #? -ne 0 ]
+if [ $? -ne 0 ]
 then
     echo "MySQL root password was not set. Setting it now" &>>$LOG_FILE
     mysql_secure_installation --set-root-pass ExpenseApp@1
