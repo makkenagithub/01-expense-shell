@@ -12,7 +12,7 @@ LOG_FILE="$LOG_FOLDER/$SCRIPT_NAME-$TIME_STAMP.log" # log file name
  # If the folder alredy exist, then it will not give error
 mkdir -p $LOG_FOLDER   
 
-UID=$(id -u)
+USERID=$(id -u)
 
 R="\e[31m"
 G="\e[32m"
@@ -33,7 +33,7 @@ VALIDATE(){
 echo "Script satrted executing at: $(date)" tee -a $LOG_FILE
 
 
-if [ $UID -ne 0 ]   # check root user or not
+if [ $USERID -ne 0 ]   # check root user or not
 then
     echo -e "$R user does not have root previlages. please run with root previlages $N" | tee -a $LOG_FILE
     exit 1  # exit from script
